@@ -54,14 +54,18 @@ public class English implements ILanguage {
     for (ISyllable syl : sylls) {
       String onset = syl.getOnset();
       if (!onsets.contains(onset) && onset.contains("y")) {
-        int yIndex = onset.indexOf("y");
-        String newOnset = onset.substring(0, yIndex);
-        newsylls.add(new Syllable(newOnset, "y"));
-
-        if (yIndex < onset.length() - 1) {
-          newsylls.add(new Syllable(onset.substring(yIndex + 1), syl.getNucleus()));
-        } else if (!syl.getNucleus().equals("")) {
-          newsylls.add(new Syllable("", syl.getNucleus()));
+        int startSyl = 0;
+        for (int i = 0; i < onset.length(); i++) {
+          if (onset.charAt(i) == 'y') {
+            String yonset = onset.substring(startSyl, i);
+            startSyl = i + 1;
+            Syllable ySyll = new Syllable(yonset, "y");
+            newsylls.add(ySyll);
+          } else if (i == onset.length() - 1 && onset.charAt(i) != 'y') {
+            String nonset = onset.substring(startSyl);
+            Syllable nonSyll = new Syllable(nonset, syl.getNucleus());
+            newsylls.add(nonSyll);
+          }
         }
       } else {
         newsylls.add(syl);
