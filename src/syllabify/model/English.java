@@ -11,10 +11,12 @@ public class English implements ILanguage {
   public English() {
     nuclei = new ArrayList<>();
     onsets = new ArrayList<>();
-    Collections.addAll(nuclei, "a", "i", "o", "e", "u", "ue", "ai", "oa", "ou");
+    Collections.addAll(nuclei, "a", "i", "o", "e", "u", "ue", "ai", "oa", "ou", "ea",
+            "ui", "ee", "io", "au");
     Collections.addAll(onsets, "b", "c", "d", "f", "g", "h", "j", "k", "l", "m", "n",
             "p", "q", "r", "s", "t", "v", "w", "x", "y", "z", "sk", "bl", "cl", "gl", "", "sn",
-            "sl", "sm", "rh", "spr");
+            "sl", "sm", "rh", "spr", "th", "dr", "spl", "sh", "wh", "kn", "ch", "br", "tr", "pr",
+            "st", "ph", "pl", "fr");
     // Collections.addAll(codas, "g", "m");
   }
 
@@ -24,7 +26,11 @@ public class English implements ILanguage {
     int startSyll = 0;
     for (int i = 0; i < w.length(); i++) {
       String vowel = "";
-      if (nuclei.contains(vowel + w.charAt(i)) && !(i == w.length() - 1 && w.charAt(i) == 'e')) {
+      if (nuclei.contains(vowel + w.charAt(i)) &&
+              !(w.charAt(i) == 'e' && word.getSyllables().size() > 0 &&
+                      ((i > 0 && (w.charAt(i - 1) != 'd' && w.charAt(i - 1) != 't')
+                              && w.charAt(i + 1) == 'd') // verb endings
+                      || (i == w.length() - 1)))) {
         String onset = w.substring(startSyll, i);
         String nucleus;
         if (i < w.length() - 1 &&
