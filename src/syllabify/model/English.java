@@ -12,11 +12,11 @@ public class English implements ILanguage {
     nuclei = new ArrayList<>();
     onsets = new ArrayList<>();
     Collections.addAll(nuclei, "a", "i", "o", "e", "u", "ue", "ai", "oa", "ou", "ea",
-            "ui", "ee", "io", "au", "oo");
+            "ui", "ee", "io", "au", "oo", "ey", "oi");
     Collections.addAll(onsets, "b", "c", "d", "f", "g", "h", "j", "k", "l", "m", "n",
             "p", "q", "r", "s", "t", "v", "w", "x", "y", "z", "sk", "bl", "cl", "gl", "", "sn",
             "sl", "sm", "rh", "spr", "th", "dr", "spl", "sh", "wh", "kn", "ch", "br", "tr", "pr",
-            "st", "ph", "pl", "fr", "sw");
+            "st", "ph", "pl", "fr", "sw", "gr", "tw", "fl", "thr", "cr");
     // Collections.addAll(codas, "g", "m");
   }
 
@@ -27,11 +27,9 @@ public class English implements ILanguage {
     for (int i = 0; i < w.length(); i++) {
       String vowel = "";
       if (nuclei.contains(vowel + w.charAt(i)) &&
-              !(w.charAt(i) == 'e' && word.getSyllables().size() > 0 &&
-                      ((i > 0 && i == w.length() - 2 && (w.charAt(i - 1) != 'd' &&
-                              w.charAt(i - 1) != 't')
-                              && w.charAt(i + 1) == 'd') // verb endings
-                      || (i == w.length() - 1)))) {
+              !(w.charAt(i) == 'e' && (word.getSyllables().size() > 0 || w.contains("y")) &&
+                      ((i == w.length() - 1) || this.isSPronounced(i, w) ||
+                              this.isEPronounced(i, w)))) {
         String onset = w.substring(startSyll, i);
         String nucleus;
         if (i < w.length() - 1 &&
@@ -55,12 +53,33 @@ public class English implements ILanguage {
     }
   }
 
+  private boolean isEPronounced(int index, String word) {
+    return ((index > 0 && index == word.length() - 2 && (word.charAt(index - 1) != 'd' &&
+            word.charAt(index - 1) != 't')
+            && word.charAt(index + 1) == 'd') // verb endings
+    );
+  }
+
+  private boolean isSPronounced(int index, String word) {
+    return index > 0 && index == word.length() - 2 && word.charAt(index + 1) == 's' &&
+            ((word.charAt(index - 1) != 's' &&
+                    word.charAt(index - 1) != 'z' &&
+                    word.charAt(index - 1) != 'x' &&
+                    word.charAt(index - 1) != 'g') &&
+                    !(index > 1 && word.charAt(index - 2) == 's' && word.charAt(index - 1) ==
+                            'h'));
+  }
+
   private void yPass(Word word) {
     ArrayList<ISyllable> sylls = word.getSyllables();
     ArrayList<ISyllable> newsylls = new ArrayList<>();
     for (ISyllable syl : sylls) {
       String onset = syl.getOnset();
-      if (!onsets.contains(onset) && onset.contains("y")) {
+      if (onset.length() != 2 && onset.endsWith("le") && syl.getNucleus().equals("")) {
+        String lonset = onset.substring(0, onset.length() - 2);
+        Syllable lonSyll = new Syllable(lonset, "le");
+        newsylls.add(lonSyll);
+      } else if (!onsets.contains(onset) && onset.contains("y")) {
         int startSyl = 0;
         for (int i = 0; i < onset.length(); i++) {
           if (onset.charAt(i) == 'y') {
