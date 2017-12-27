@@ -3,4 +3,4 @@ This is an ongoing project to "syllabify" different words in English. Given a wo
 this code will break that word into its syllables. I chose to work with English orthography, as opposed to IPA because,
 despite the difficulties this presents, it is more applicable to everyday use. 
 
-Currently working on the "and sometimes 'y'" rule that makes determining vowels oh-so-difficult.
+
