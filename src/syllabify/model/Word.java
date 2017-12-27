@@ -5,10 +5,12 @@ import java.util.ArrayList;
 public class Word implements IWord {
   private String word;
   private ArrayList<ISyllable> syllables;
+  private boolean isLegal;
 
   public Word(String word) {
     this.word = word;
     this.syllables = new ArrayList<>();
+    this.isLegal = true;
   }
 
   @Override
@@ -42,5 +44,12 @@ public class Word implements IWord {
     for (ISyllable s : sy) {
       this.addSyllable(s);
     }
+  }
+  public void setLegal(boolean legal) {
+    this.isLegal = legal;
+  }
+
+  public boolean getLegal() {
+    return this.isLegal;
   }
 }

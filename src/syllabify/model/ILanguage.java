@@ -15,11 +15,5 @@ public interface ILanguage {
    */
   public void onsetPass(Word word);
 
-  /**
-   * Checks if this word has a legal syllable structure for this language.
-   * @param word    The word to check.
-   * @return        True if this word has a legal syllable structure, false elsewise.
-   */
-  public boolean codaPass (Word word);
 
 }

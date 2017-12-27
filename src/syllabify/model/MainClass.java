@@ -8,11 +8,15 @@ public class MainClass {
       Word w = new Word(args[i]);
       lang.nucleusPass(w);
       lang.onsetPass(w);
-      System.out.print("[");
-      for (ISyllable s : w.getSyllables()) {
-        System.out.print(s.toString() + ".");
+      if (!w.getLegal()) {
+        System.out.print("Not a legal word in English\n");
+      } else {
+        System.out.print("[");
+        for (ISyllable s : w.getSyllables()) {
+          System.out.print(s.toString() + ".");
+        }
+        System.out.print("]\n");
       }
-      System.out.print("]\n");
     }
   }
 }

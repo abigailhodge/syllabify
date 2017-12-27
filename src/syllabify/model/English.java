@@ -6,18 +6,18 @@ import java.util.Collections;
 public class English implements ILanguage {
   private ArrayList<String> nuclei;
   private ArrayList<String> onsets;
-  // private ArrayList<String> codas;
+
 
   public English() {
     nuclei = new ArrayList<>();
     onsets = new ArrayList<>();
     Collections.addAll(nuclei, "a", "i", "o", "e", "u", "ue", "ai", "oa", "ou", "ea",
-            "ui", "ee", "io", "au", "oo", "ey", "oi");
+            "ui", "ee", "au", "oo", "ey", "oi", "io");
     Collections.addAll(onsets, "b", "c", "d", "f", "g", "h", "j", "k", "l", "m", "n",
             "p", "q", "r", "s", "t", "v", "w", "x", "y", "z", "sk", "bl", "cl", "gl", "", "sn",
             "sl", "sm", "rh", "spr", "th", "dr", "spl", "sh", "wh", "kn", "ch", "br", "tr", "pr",
             "st", "ph", "pl", "fr", "sw", "gr", "tw", "fl", "thr", "cr");
-    // Collections.addAll(codas, "g", "m");
+
   }
 
   @Override
@@ -28,15 +28,22 @@ public class English implements ILanguage {
       String vowel = "";
       if (nuclei.contains(vowel + w.charAt(i)) &&
               !(w.charAt(i) == 'e' && (word.getSyllables().size() > 0 || w.contains("y")) &&
-                      ((i == w.length() - 1) || this.isSPronounced(i, w) ||
-                              this.isEPronounced(i, w)))) {
+                      ((i == w.length() - 1) || this.isSilentS(i, w) ||
+                              this.isSilentD(i, w)))) {
         String onset = w.substring(startSyll, i);
         String nucleus;
         if (i < w.length() - 1 &&
                 nuclei.contains(vowel + w.charAt(i) + w.charAt(i + 1))) {
-          nucleus = w.substring(i, i + 2);
-          startSyll = i + 2;
-          i++;
+          // helps differentiate words like "lion" from words like "nation"
+          if (w.charAt(i) == 'i' && w.charAt(i + 1) == 'o' && (i == 0 || !(w.charAt(i - 1) == 's' ||
+                  w.charAt(i - 1) == 't'))) {
+            nucleus = w.substring(i, i + 1);
+            startSyll = i + 1;
+          } else {
+            nucleus = w.substring(i, i + 2);
+            startSyll = i + 2;
+            i++;
+          }
         } else {
           nucleus = w.substring(i, i + 1);
           startSyll = i + 1;
@@ -53,14 +60,28 @@ public class English implements ILanguage {
     }
   }
 
-  private boolean isEPronounced(int index, String word) {
+  /**
+   * Determines if word-final -ed should be silent ("walked, barfed") or pronounced ("batted")
+   * @param index     The location of the target "e"
+   * @param word      The word to check
+   * @return          True if the word has a silent -ed, false if the -ed is pronounced or if
+   * there is no "-ed" at all.
+   */
+  private boolean isSilentD(int index, String word) {
     return ((index > 0 && index == word.length() - 2 && (word.charAt(index - 1) != 'd' &&
             word.charAt(index - 1) != 't')
             && word.charAt(index + 1) == 'd') // verb endings
     );
   }
 
-  private boolean isSPronounced(int index, String word) {
+  /**
+   * Determines if word-final -es should be silent ("tomes, groves") or pronounced "foxes, bushes")
+   * @param index   The location of the target "e".
+   * @param word    The word to check.
+   * @return        True if the word has a silent -es, false if the -es is pronounced or if there
+   * is no -es at all.
+   */
+  private boolean isSilentS(int index, String word) {
     return index > 0 && index == word.length() - 2 && word.charAt(index + 1) == 's' &&
             ((word.charAt(index - 1) != 's' &&
                     word.charAt(index - 1) != 'z' &&
@@ -70,7 +91,13 @@ public class English implements ILanguage {
                             'h'));
   }
 
-  private void yPass(Word word) {
+  /**
+   * Syllabifies all non-vowel (not spelled 'a, e, i, o, u' or combo) nuclei. Currently for "le"
+   * (ie, "battle") and "y" (ie "sky, pygmy, syzygy")
+   * Done after vowel pass but before onset formation.
+   * @param word   The word to syllabify.
+   */
+  private void nonVowelNucleusPass(Word word) {
     ArrayList<ISyllable> sylls = word.getSyllables();
     ArrayList<ISyllable> newsylls = new ArrayList<>();
     for (ISyllable syl : sylls) {
@@ -87,6 +114,9 @@ public class English implements ILanguage {
             startSyl = i + 1;
             Syllable ySyll = new Syllable(yonset, "y");
             newsylls.add(ySyll);
+            if (i == onset.length() - 1 && !syl.getNucleus().equals("")) {
+              newsylls.add(new Syllable("", syl.getNucleus()));
+            }
           } else if (i == onset.length() - 1 && onset.charAt(i) != 'y') {
             String nonset = onset.substring(startSyl);
             Syllable nonSyll = new Syllable(nonset, syl.getNucleus());
@@ -103,7 +133,7 @@ public class English implements ILanguage {
   @Override
   public void onsetPass(Word word) {
     try {
-      this.yPass(word);
+      this.nonVowelNucleusPass(word);
       ArrayList<ISyllable> sylls = word.getSyllables();
 
       for (ISyllable syl : sylls) {
@@ -124,21 +154,19 @@ public class English implements ILanguage {
         word.removeSyllable(sylls.size() - 1);
       }
     } catch (IndexOutOfBoundsException e) {
-      System.out.print("Not a legal word in English");
-      System.exit(0);
+      // Will occur if the word begins with an illegal onset.
+      word.setLegal(false);
     }
 
 
   }
 
-
-  @Override
-  public boolean codaPass(Word word) {
-    for (ISyllable sylls : word.getSyllables()) {
-    }
-    return false;
-  }
-
+  /**
+   * Returns the appropriate index to divide a String into a first syllable's
+   * coda and a second syllable's (language-legal) onset.
+   * @param onset    The String to divide into coda and onset.
+   * @return         The starting index (inclusive) of the second syllable's onset.
+   */
   private int getSegmentNum(String onset) {
     int length = onset.length();
     int divider = 0;
