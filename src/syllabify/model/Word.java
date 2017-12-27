@@ -39,16 +39,20 @@ public class Word implements IWord {
     syllables.remove(i);
   }
 
+  @Override
   public void setSyllables(ArrayList<ISyllable> sy) {
     this.syllables.clear();
     for (ISyllable s : sy) {
       this.addSyllable(s);
     }
   }
+
+  @Override
   public void setLegal(boolean legal) {
     this.isLegal = legal;
   }
 
+  @Override
   public boolean getLegal() {
     return this.isLegal;
   }

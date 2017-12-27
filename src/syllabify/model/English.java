@@ -35,8 +35,8 @@ public class English implements ILanguage {
         if (i < w.length() - 1 &&
                 nuclei.contains(vowel + w.charAt(i) + w.charAt(i + 1))) {
           // helps differentiate words like "lion" from words like "nation"
-          if (w.charAt(i) == 'i' && w.charAt(i + 1) == 'o' && (i == 0 || !(w.charAt(i - 1) == 's' ||
-                  w.charAt(i - 1) == 't'))) {
+          if (w.charAt(i) == 'i' && (w.charAt(i + 1) == 'o' || w.charAt(i + 1) == 'a')
+                  && (i == 0 || !(w.charAt(i - 1) == 's' || w.charAt(i - 1) == 't'))) {
             nucleus = w.substring(i, i + 1);
             startSyll = i + 1;
           } else {

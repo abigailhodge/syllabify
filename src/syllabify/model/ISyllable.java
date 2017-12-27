@@ -26,10 +26,22 @@ public interface ISyllable {
    */
   public int getWordPosn();
 
+  /**
+   * Gets the onset of this syllable.
+   * @return    The String representing this syllable's onset.
+   */
   public String getOnset();
 
+  /**
+   * Gets the nucleus of this syllable.
+   * @return   The String representing this syllable's nucleus.
+   */
   public String getNucleus();
 
+  /**
+   * Sets this syllable's position in a word.
+   * @param i   The new position.
+   */
   public void setWordPosn(int i);
 
 }
